@@ -10,7 +10,7 @@ import java.io.IOException;
 public class Twenty48App extends Application {
 
     public static void main(String[] args) {
-        Application.launch(args);
+        Twenty48App.launch(args);
     }
 
     @Override
@@ -19,5 +19,7 @@ public class Twenty48App extends Application {
         primaryStage.setScene(new Scene(FXMLLoader.load(getClass().getResource("Twenty48App.fxml"))));
         primaryStage.show();
     }
+
+    
 
 }
