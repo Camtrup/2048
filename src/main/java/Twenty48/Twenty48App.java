@@ -16,7 +16,7 @@ public class Twenty48App extends Application {
     @Override
     public void start(Stage primaryStage) throws IOException {
         primaryStage.setTitle("2048");
-        primaryStage.setScene(new Scene(FXMLLoader.load(getClass().getResource("Twenty48App.fxml"))));
+        primaryStage.setScene(new Scene(FXMLLoader.load(getClass().getResource("Twenty48StartPage.fxml"))));
         primaryStage.show();
     }
 
