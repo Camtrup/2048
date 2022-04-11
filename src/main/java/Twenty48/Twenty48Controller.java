@@ -8,6 +8,7 @@ import javafx.fxml.FXML;
 import javafx.geometry.Pos;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextInputDialog;
@@ -160,14 +161,33 @@ public class Twenty48Controller {
     }
 
     public void gameOver(boolean won){
-        boardPane.getChildren().clear();
-        saveButton.setVisible(false);
-        Label result = new Label(won ? "WIN" : "LOSS");
-        Label scoreText = new Label("SCORE");
-        Label score = new Label(board.getScore() + "");
+        String s = won ? "WON" : "LOST";
+        Alert alert = new Alert(AlertType.CONFIRMATION);
+        alert.setTitle("You " + s + "!");
+        alert.setHeaderText("Your score: " + board.getScore());
+        alert.setContentText("Do you want to...");
 
-        VBox screen = new VBox(result, scoreText, score);
-        boardPane.getChildren().add(screen);
+        ButtonType buttonTypeOne = new ButtonType("Continue to " + board.getWinCondition() * 2 + "?");
+        ButtonType buttonTypeTwo = new ButtonType("Continue forever?!");
+        ButtonType buttonTypeThree = new ButtonType("Start a new game?");
+        if(!board.isGameWon()){
+            alert.getButtonTypes().setAll(buttonTypeThree);
+        }
+        else{
+            alert.getButtonTypes().setAll(buttonTypeOne, buttonTypeTwo, buttonTypeThree);
+        }
+
+
+        Optional<ButtonType> result = alert.showAndWait();
+        if (result.get() == buttonTypeOne){
+            board.setWinCondition(board.getWinCondition() * 2);
+        } else if (result.get() == buttonTypeTwo) {
+            board.setWinCondition(0);
+        } else if(result.get() == buttonTypeThree){
+            newGame();
+        } else {
+            newGame();
+        } 
     }
 
     /**

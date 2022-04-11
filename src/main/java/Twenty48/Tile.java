@@ -1,6 +1,6 @@
 package Twenty48;
 
-public class Tile {
+public class Tile implements ITile {
     private int value;
     private int index;
     private String[] colors = new String[]{

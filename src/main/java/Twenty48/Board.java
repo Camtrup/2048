@@ -4,14 +4,13 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 
-import javafx.scene.input.KeyEvent;
-
 public class Board {
     private int size;
     private Tile[][] boardMatrix;
     private int emptyTiles;
     private int highestScoreTile = 0;
     private int score;
+    private int winCondition = 2048;
 
     /**
      * Initializes the board by creating a matrix with size as dimensions
@@ -63,10 +62,17 @@ public class Board {
     }
 
     private boolean canTilesMerge(){
-        for (int x = 1; x < size; x++){
-            for(int y = 1; y < size; y++){
-                if(boardMatrix[y][x].getValue() == boardMatrix[y-1][x].getValue() || boardMatrix[y][x].getValue() == boardMatrix[y][x-1].getValue()){
-                    return true;
+        for (int x = 0; x < size; x++){
+            for(int y = 0; y < size; y++){
+                if(x + 1 < size){
+                    if(boardMatrix[y][x].getValue() == boardMatrix[y][x+1].getValue()){
+                        return true;
+                    }
+                }
+                if(y + 1 < size){
+                    if(boardMatrix[y][x].getValue() == boardMatrix[y+1][x].getValue()){
+                        return true;
+                    }
                 }
             }
         }
@@ -227,7 +233,13 @@ public class Board {
      * @return a boolean where true means the game is won
      */
     public boolean isGameWon(){
-        return highestScoreTile == 2048;
+        return highestScoreTile == winCondition;
+    }
+    public int getWinCondition() {
+        return winCondition;
+    }
+    public void setWinCondition(int winCondition) {
+        this.winCondition = winCondition;
     }
     @Override
     public String toString() {
