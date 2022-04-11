@@ -4,13 +4,22 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 
+import javafx.scene.input.KeyEvent;
+
 public class Board {
     private int size;
     private Tile[][] boardMatrix;
     private int emptyTiles;
     private int highestScoreTile = 0;
+    private int score;
 
+    /**
+     * Initializes the board by creating a matrix with size as dimensions
+     * Also adds two tiles on the board to start the game
+     * @param size of the board
+     */
     public Board(int size){
+        this.score = 0;
         this.size = size;
         emptyTiles = size*size;
         boardMatrix = new Tile[size][size];
@@ -22,19 +31,52 @@ public class Board {
         addRandomTile();
         addRandomTile();
     }
+    /**
+     * Constructor for loading of boards from file
+     * @param size size of the board
+     * @param score current score
+     * @param matrix the board
+     */
+    public Board(int size, int score, Tile[][] matrix){
+        this.size = size;
+        this.boardMatrix = matrix;
+        this.score = score;
+    }
 
+    /**
+     * Adds a random tile, used after each move by the player, to keep progresssing
+     */
     private void addRandomTile(){
-        int x = (int) Math.ceil(Math.random() * size) - 1;
-        int y = (int) Math.ceil(Math.random() * size) - 1;
-        if(boardMatrix[y][x] == null){
-            boardMatrix[y][x] = new Tile();
+        ArrayList<int[]> temp = new ArrayList<int[]>();
+        for(int i = 0; i < size; i++){
+            for(int k = 0; k < size; k++){
+                if(boardMatrix[k][i] == null){
+                    temp.add(new int[]{k,i});
+                }
+            }
+        }
+        if(!temp.isEmpty()){
+            int[] r = temp.get((int) Math.floor(Math.random() * temp.size()));
+            boardMatrix[r[0]][r[1]] = new Tile();
             emptyTiles--;
         }
-        else{
-            addRandomTile();
-        }
     }
-    //Transposes the matrix, ie the board; Converts the columns to rows and vice versa
+
+    private boolean canTilesMerge(){
+        for (int x = 1; x < size; x++){
+            for(int y = 1; y < size; y++){
+                if(boardMatrix[y][x].getValue() == boardMatrix[y-1][x].getValue() || boardMatrix[y][x].getValue() == boardMatrix[y][x-1].getValue()){
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+    /**
+     * Transposes the matrix, ie the board; Converts the columns to rows and vice versa
+     * @param matrix i.e the board
+     * @return the transposed matrix
+     */
     private Tile[][] transposeMatrix(Tile[][] matrix){
         for (int i = 0; i < size; i++) {
             for (int k = i + 1; k < size; k++) {
@@ -45,14 +87,26 @@ public class Board {
         }
         return matrix;
     }
-
+    /**
+     * Reversea a given line
+     * @param line in the matrix
+     * @return the reversed line of tiles
+     */
     private Tile[] reverseLine(Tile[] line){
         Collections.reverse(Arrays.asList(line));
         return line;
     }
-
-
-    //Merges the tiles
+    public boolean isGameOver(){
+        if(emptyTiles == 0){
+            return !canTilesMerge();
+        }
+        return isGameWon();
+    }
+    /**
+     * Merges the tiles by pulling them to the edge. two tiles merge if they are the same value
+     * @param line of tiles; a line in the matrix
+     * @return A line in the matrix where the tiles are merged from left to right
+     */
     private Tile[] handleMergeLine(Tile[] line){
         ArrayList<String> moved = new ArrayList<String>();
         for(int k = size - 2; k >= 0;k--){
@@ -66,6 +120,8 @@ public class Board {
                         line[i] = null;
                         line[i+1].increaseValue();
                         emptyTiles++;
+                        highestScoreTile = (line[i+1].getValue() > highestScoreTile ? line[i+1].getValue() : highestScoreTile);
+                        score += line[i+1].getValue();
                         moved.add("" + i+1);
                         break;
                     }
@@ -78,76 +134,115 @@ public class Board {
         return line;
     }
 
-    public void moveRight(){
+    /**
+     * Moves and merges the tiles in the rightward direction
+     */
+    private void moveRight(){
         for(Tile[] line : boardMatrix){
             handleMergeLine(line);
         }
     }
-
-    public void moveLeft(){
+    /**
+     * Moves and merges the tiles in the leftward direction
+     */
+    private void moveLeft(){
         for(Tile[] line : boardMatrix){
             handleMergeLine(reverseLine(line));
             reverseLine(line);
         }
     }
 
-    public void moveDown(){
+    /**
+     * Moves and merges the tiles in the downward direction
+     */
+    private void moveDown(){
         for(Tile[] line : transposeMatrix(boardMatrix)){
             handleMergeLine(line);
         }
         transposeMatrix(boardMatrix);
     }
 
-    public void moveUp(){
+    /**
+     * Moves and merges the tiles in the upward direction
+     */
+    private void moveUp(){
         for(Tile[] line : transposeMatrix(boardMatrix)){
             handleMergeLine(reverseLine(line));
             reverseLine(line);
         }
         transposeMatrix(boardMatrix);
     }
+    /**
+     * Handles the moves by the user
+     * @param direction a character wich defines the direction of the "move"
+     */
+    public boolean move(String direction){
+        String temp = this.toString();
+        switch(direction){
+            case "DOWN", "S":
+                moveDown();
+                break;
+            case "UP", "W":
+                moveUp();
+                break;
+            case "LEFT", "A":
+                moveLeft();
+                break;
+            case "RIGHT", "D":
+                moveRight();
+                break;
+            default:
+                break;
+        }
+        if(!temp.equals(this.toString())){
+            addRandomTile();
+        }
+        return isGameOver();
+    }
 
-
+    /**
+     * 
+     * @return the boards matrix consisting of tiles
+     */
     public Tile[][] getBoardMatrix() {
         return boardMatrix;
     }
 
-    //Returs True if the game is won or lost
-    public boolean isGameOver(){
-        return emptyTiles == 0 || highestScoreTile == 2048;
+    public int getSize() {
+        return size;
     }
 
-    public void print(){
-        int[][] temp = new int[size][size];
+    public int getScore() {
+        return score;
+    }
+    public Tile getTileValue(int x, int y){
+        return boardMatrix[y][x];
+    }
+    public int getEmptyTiles() {
+        return emptyTiles;
+    }
+
+    /**
+     * Checks if the game won
+     * @return a boolean where true means the game is won
+     */
+    public boolean isGameWon(){
+        return highestScoreTile == 2048;
+    }
+    @Override
+    public String toString() {
+        String temp = "";
         for(int i = 0; i < size; i++){
             for(int k = 0; k < size; k++){
                 if(boardMatrix[k][i] == null){
-                    temp[k][i] = 0;
+                    temp += 0;
                 }
                 else{
-                    temp[k][i] = boardMatrix[k][i].getValue();
+                    temp += boardMatrix[k][i].getValue();
                 }
             }
         }
-        System.out.println(Arrays.deepToString(temp).replace("], ", "]\n"));
+        return temp;
     }
 
-
-public static void main(String[] args) {
-    Board b = new Board(5);
-    b.addRandomTile();
-    b.addRandomTile();
-    b.print();
-    System.out.println();
-    b.moveUp();
-    b.print();
-    System.out.println();
-    b.moveRight();
-    b.print();
-    System.out.println();
-    b.moveDown();
-    b.print();
-    System.out.println();
-    b.moveLeft();
-    b.print();
-}
 }

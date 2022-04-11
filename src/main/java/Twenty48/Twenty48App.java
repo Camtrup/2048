@@ -12,7 +12,6 @@ public class Twenty48App extends Application {
     public static void main(String[] args) {
         Twenty48App.launch(args);
     }
-
     @Override
     public void start(Stage primaryStage) throws IOException {
         primaryStage.setTitle("2048");
