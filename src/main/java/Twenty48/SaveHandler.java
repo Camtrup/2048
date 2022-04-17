@@ -22,12 +22,16 @@ public class SaveHandler{
                 throw new IllegalArgumentException("Name of save is already in use, try again!");
             }
         }
+        if(name.isBlank()){
+            throw new IllegalArgumentException("Name must contain characters");
+        }
         Writer output = new BufferedWriter(new FileWriter(getFile(test), true));
         String s = name + ";";
+        s += b.getType() + ";";
         s += b.getSize() + ";";
         s += b.getScore() + ";";
-        for(Tile[] row : b.getBoardMatrix()){
-            for(Tile tile : row){
+        for(ITile[] row : b.getBoardMatrix()){
+            for(ITile tile : row){
                 s += (tile == null ? "0_0" : tile.getValue() + "_" + tile.getIndex()) + ":";
             }
             s += "-";
@@ -48,23 +52,37 @@ public class SaveHandler{
                 String[] temp = value.split(";");
                 
                 try {
-                    int size = Integer.parseInt(temp[1]);
-                    Tile[][] tempMatrix = new Tile[size][size];
+                    int size = Integer.parseInt(temp[2]);
+                    ITile[][] tempMatrix = new ITile[size][size];
                     
-                    String[] loadRows = temp[3].split("-");
+                    String[] loadRows = temp[4].split("-");
                     String[] tempRow;
+                    ITile type = null;
+                    int highest = 0;
+                    int emptyTiles = 0;
                     
                     for(int i = 0; i < size; i++){
                         tempRow = loadRows[i].split(":");
                         for(int k = 0; k < size; k++){
                             String[] valIndex = tempRow[k].split("_");
-                            tempMatrix[i][k] = (Integer.parseInt(valIndex[0]) == 0 ? null : new Tile(Integer.parseInt(valIndex[0]), Integer.parseInt(valIndex[1])));
+                            int val = Integer.parseInt(valIndex[0]);
+                            highest = highest < val ? val : highest;
+                            type = temp[1].equals(NumberTile.class.getSimpleName()) ? new NumberTile() : new PictureTile();
+                            type.setValue(val);
+                            type.setIndex(Integer.parseInt(valIndex[1]));
+                            if(valIndex[0].equals("0")){
+                                type = null;    
+                                emptyTiles++;
+                            }
+                            tempMatrix[i][k] = type;
                         }
                     }
-                    
-                    Board b = new Board(size, Integer.parseInt(temp[2]), tempMatrix);
+                    Board b = new Board(size, Integer.parseInt(temp[3]), tempMatrix, type);
+                    b.setHighestScoreTile(highest);
+                    b.setEmptyTiles(emptyTiles);
                     return b;
                 }catch(Exception e){
+                    e.printStackTrace();
                     deleteSave(name, test);
                     throw new IllegalStateException("Save is corrupt, will be deleted");
                 }

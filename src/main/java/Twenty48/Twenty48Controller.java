@@ -25,10 +25,16 @@ public class Twenty48Controller {
     private int boardSize;
     private SaveHandler saveHandler = new SaveHandler();
 
+    /**
+     * An object of the type KeyEvent that handle sthe userinput for controlling the game
+     * Translates the key-symbol to a string
+     * Also checks if the game is over
+     */
     EventHandler<KeyEvent> keyPress =  (e -> {
             boolean over = board.move(e.getCode().toString());
             drawGrid();
             if(over){
+                drawGrid();
                 gameOver(board.isGameWon());
             }
         });
@@ -50,21 +56,39 @@ public class Twenty48Controller {
         } catch (Exception e){}
         saveButton.setVisible(false);
         boardPane.getChildren().clear();
-        Label diffText = new Label("Choose size");
-        Button small = new Button("Small 3x3");
-        small.setOnAction(e -> {
-            startGame(new Board(3));
+        
+        
+        Label numText = new Label("Choose size of Number-tiles!");
+        Button numSmall = new Button("Small 3x3");
+        numSmall.setOnAction(e -> {
+            startGame(new Board(3, new NumberTile()));
         });
-        Button normal = new Button("Normal 4x4");
-        normal.setOnAction(e -> {
-            startGame(new Board(4));
+        Button numNormal = new Button("Normal 4x4");
+        numNormal.setOnAction(e -> {
+            startGame(new Board(4, new NumberTile()));
         });
-        Button big = new Button("Big 5x5");
-        big.setOnAction(e -> {
-            startGame(new Board(5));
+        Button numBig = new Button("Big 5x5");
+        numBig.setOnAction(e -> {
+            startGame(new Board(5, new NumberTile()));
         });
-        HBox buttonBox = new HBox(small, normal, big);
-        VBox diffBox = new VBox(diffText, buttonBox);
+        HBox numBox = new HBox(numSmall, numNormal, numBig);
+        VBox numContainer = new VBox(numText, numBox);
+
+        Label picText = new Label("Choose size of Picture-tiles!");
+        Button picSmall = new Button("Small 3x3");
+        picSmall.setOnAction(e -> {
+            startGame(new Board(3, new PictureTile()));
+        });
+        Button picNormal = new Button("Normal 4x4");
+        picNormal.setOnAction(e -> {
+            startGame(new Board(4, new PictureTile()));
+        });
+        Button picBig = new Button("Big 5x5");
+        numBig.setOnAction(e -> {
+            startGame(new Board(5, new PictureTile()));
+        });
+        HBox picBox = new HBox(picSmall, picNormal, picBig);
+        VBox picContainer = new VBox(picText, picBox);
 
         Label loadGameLabel = new Label("Load Game");
         VBox tempVBox = new VBox();
@@ -73,7 +97,7 @@ public class Twenty48Controller {
             for(String line : saveHandler.getAllSaves(false)){
                 String[] temp = line.split(";");
                 Board tempBoard = saveHandler.loadBoard(temp[0], false);
-                Button b = new Button(temp[0] + "  Score: " + temp[2] + "  Size: " + temp[1]);
+                Button b = new Button(temp[0] + " Size: " + temp[2] + "  Type: " + temp[1]);
                 b.setOnAction(e -> {
                     startGame(tempBoard);
                 });
@@ -97,28 +121,27 @@ public class Twenty48Controller {
         ScrollPane scroll = new ScrollPane(tempVBox);
         VBox loadBox = new VBox(loadGameLabel, scroll);
 
-        VBox allContent = new VBox(diffBox, loadBox);
+        VBox allContent = new VBox(numContainer, picContainer, loadBox);
 
         boardPane.getChildren().add(allContent);
         
     }
 
+    /**
+     * Saves the current game with a prompted name, if the name is already taken or another exception is fired
+     * it is logged and alerted to the user
+     */
     public void saveGame(){
         if(board == null){
             alertBox(new IllegalArgumentException("There is currently no game to save, Start a new one!"));
             return;
         }
         String prompt = promptBox();
-        if(prompt == ""){
-
-        }
-        else {
-            try{
-                saveHandler.saveBoard(board, prompt, false);
-            }catch(Exception e){
-                e.printStackTrace();
-                alertBox(e);
-            }
+        try{
+            saveHandler.saveBoard(board, prompt, false);
+        }catch(Exception e){
+            e.printStackTrace();
+            alertBox(e);
         }
     }
     
@@ -134,6 +157,10 @@ public class Twenty48Controller {
         alert.showAndWait();
     }
 
+    /**
+     * prompts the user for input on what the name of a given save
+     * @return String with the name of the save or a blank string if a result is not present
+     */
     private String promptBox(){
         TextInputDialog dialog = new TextInputDialog("Save Game");
         dialog.setHeaderText("Please set a name for your save");
@@ -148,7 +175,7 @@ public class Twenty48Controller {
     /**
      * initiaties the user-controls; i.e the arrows on the keyboard
      * also draws the board
-     * @param b
+     * @param b board to be used in the new game
      */
     private void startGame(Board b){
         saveButton.setVisible(true);
@@ -160,6 +187,13 @@ public class Twenty48Controller {
         drawGrid();
     }
 
+    /**
+     * Displays an alertbox that informs the user of the outcome of the game
+     * If the player loses they are only given the choice of starting another game
+     * If the plasyer wins the player can decide to continue to the next target (which is double of the current)
+     * , continue forever or start a new game
+     * @param won decides the outcome of the game
+     */
     public void gameOver(boolean won){
         String s = won ? "WON" : "LOST";
         Alert alert = new Alert(AlertType.CONFIRMATION);
@@ -179,15 +213,16 @@ public class Twenty48Controller {
 
 
         Optional<ButtonType> result = alert.showAndWait();
-        if (result.get() == buttonTypeOne){
+        if(!result.isPresent()){
+            newGame();
+        }
+        else if (result.get() == buttonTypeOne){
             board.setWinCondition(board.getWinCondition() * 2);
         } else if (result.get() == buttonTypeTwo) {
             board.setWinCondition(0);
         } else if(result.get() == buttonTypeThree){
             newGame();
-        } else {
-            newGame();
-        } 
+        }
     }
 
     /**
@@ -198,7 +233,7 @@ public class Twenty48Controller {
         boardPane.getChildren().clear();
         for (int y = 0; y < board.getSize(); y++){
             for(int x = 0; x < board.getSize(); x++){
-                Tile t = board.getTileValue(x, y);
+                ITile t = board.getTileValue(x, y);
                 Label l = new Label(t == null ? "" : "" + t.getValue());
                 temp = new StackPane(l);
                 StackPane.setAlignment(l, Pos.CENTER);
@@ -206,8 +241,9 @@ public class Twenty48Controller {
                 temp.setPrefWidth(tileSize);
                 temp.setTranslateX(x*tileSize);
                 temp.setTranslateY(y*tileSize);
-                temp.setStyle("-fx-border-color: grey; -fx-border-width: 2px; -fx-background-color:#"+ (t == null ? "f4f4f4" : t.getColor()) +";");
+                temp.setStyle("-fx-border-color: grey; -fx-border-width: 2px;" + (t == null ? "-fx-background-color:f4f4f4;" : t.getStyle()));
                 boardPane.getChildren().add(temp);
+
             }
         }
     }

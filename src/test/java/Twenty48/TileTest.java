@@ -7,11 +7,11 @@ import org.junit.jupiter.api.Test;
 
 
 public class TileTest {
-    private Tile tile;
+    private NumberTile tile;
 
     @BeforeEach
     public void setUp(){
-        tile = new Tile();
+        tile = new NumberTile();
     }
     @Test
     public void TestValue(){

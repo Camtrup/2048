@@ -1,27 +1,30 @@
 package Twenty48;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 
 public class Board {
     private int size;
-    private Tile[][] boardMatrix;
+    private ITile[][] boardMatrix;
     private int emptyTiles;
     private int highestScoreTile = 0;
     private int score;
     private int winCondition = 2048;
+    private ITile type;
 
     /**
      * Initializes the board by creating a matrix with size as dimensions
      * Also adds two tiles on the board to start the game
      * @param size of the board
      */
-    public Board(int size){
+    public Board(int size, ITile type){
+        this.type = type;
         this.score = 0;
         this.size = size;
         emptyTiles = size*size;
-        boardMatrix = new Tile[size][size];
+        boardMatrix = new ITile[size][size];
         for(int i = 0; i < size; i++){
             for(int k = 0; k < size; k++){
                 boardMatrix[i][k] = null;
@@ -36,7 +39,8 @@ public class Board {
      * @param score current score
      * @param matrix the board
      */
-    public Board(int size, int score, Tile[][] matrix){
+    public Board(int size, int score, ITile[][] matrix, ITile type){
+        this.type = type;
         this.size = size;
         this.boardMatrix = matrix;
         this.score = score;
@@ -56,8 +60,16 @@ public class Board {
         }
         if(!temp.isEmpty()){
             int[] r = temp.get((int) Math.floor(Math.random() * temp.size()));
-            boardMatrix[r[0]][r[1]] = new Tile();
+            try {
+                boardMatrix[r[0]][r[1]] = (ITile) type.getClass().getConstructors()[0].newInstance();
+            } catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | SecurityException e) {
+                e.printStackTrace();
+            }
             emptyTiles--;
+            
+        }
+        else {
+            throw new IllegalArgumentException("Board is full, unable to add another tile");
         }
     }
 
@@ -80,13 +92,13 @@ public class Board {
     }
     /**
      * Transposes the matrix, ie the board; Converts the columns to rows and vice versa
-     * @param matrix i.e the board
+     * @param matrix the board
      * @return the transposed matrix
      */
-    private Tile[][] transposeMatrix(Tile[][] matrix){
+    private ITile[][] transposeMatrix(ITile[][] matrix){
         for (int i = 0; i < size; i++) {
             for (int k = i + 1; k < size; k++) {
-                Tile temp = matrix[i][k];
+                ITile temp = matrix[i][k];
                 matrix[i][k] = matrix[k][i];
                 matrix[k][i] = temp;
             }
@@ -98,7 +110,7 @@ public class Board {
      * @param line in the matrix
      * @return the reversed line of tiles
      */
-    private Tile[] reverseLine(Tile[] line){
+    private ITile[] reverseLine(ITile[] line){
         Collections.reverse(Arrays.asList(line));
         return line;
     }
@@ -113,7 +125,7 @@ public class Board {
      * @param line of tiles; a line in the matrix
      * @return A line in the matrix where the tiles are merged from left to right
      */
-    private Tile[] handleMergeLine(Tile[] line){
+    private void handleMergeLine(ITile[] line){
         ArrayList<String> moved = new ArrayList<String>();
         for(int k = size - 2; k >= 0;k--){
             for(int i = k; i < size-1; i++){
@@ -122,29 +134,28 @@ public class Board {
                         line[i+1] = line[i];
                         line[i] = null;
                     }
-                    else if(line[i+1].getValue() == line[i].getValue() && !moved.contains("" + i + 1)){
+                    else if(line[i+1].getValue() == line[i].getValue() && !moved.contains("" + i)){
                         line[i] = null;
                         line[i+1].increaseValue();
                         emptyTiles++;
                         highestScoreTile = (line[i+1].getValue() > highestScoreTile ? line[i+1].getValue() : highestScoreTile);
                         score += line[i+1].getValue();
-                        moved.add("" + i+1);
+                        moved.add("" + i);
                         break;
                     }
                     else{
-                        moved.add("" + i +1);
+                        moved.add("" + i);
                     }
                 }
             }
         }
-        return line;
     }
 
     /**
      * Moves and merges the tiles in the rightward direction
      */
     private void moveRight(){
-        for(Tile[] line : boardMatrix){
+        for(ITile[] line : boardMatrix){
             handleMergeLine(line);
         }
     }
@@ -152,7 +163,7 @@ public class Board {
      * Moves and merges the tiles in the leftward direction
      */
     private void moveLeft(){
-        for(Tile[] line : boardMatrix){
+        for(ITile[] line : boardMatrix){
             handleMergeLine(reverseLine(line));
             reverseLine(line);
         }
@@ -162,7 +173,7 @@ public class Board {
      * Moves and merges the tiles in the downward direction
      */
     private void moveDown(){
-        for(Tile[] line : transposeMatrix(boardMatrix)){
+        for(ITile[] line : transposeMatrix(boardMatrix)){
             handleMergeLine(line);
         }
         transposeMatrix(boardMatrix);
@@ -172,7 +183,7 @@ public class Board {
      * Moves and merges the tiles in the upward direction
      */
     private void moveUp(){
-        for(Tile[] line : transposeMatrix(boardMatrix)){
+        for(ITile[] line : transposeMatrix(boardMatrix)){
             handleMergeLine(reverseLine(line));
             reverseLine(line);
         }
@@ -198,19 +209,20 @@ public class Board {
                 moveRight();
                 break;
             default:
-                break;
+                throw new IllegalArgumentException("Not a valid input");
         }
         if(!temp.equals(this.toString())){
             addRandomTile();
+            return isGameOver();
         }
-        return isGameOver();
+        return false;
     }
 
     /**
      * 
      * @return the boards matrix consisting of tiles
      */
-    public Tile[][] getBoardMatrix() {
+    public ITile[][] getBoardMatrix() {
         return boardMatrix;
     }
 
@@ -221,11 +233,14 @@ public class Board {
     public int getScore() {
         return score;
     }
-    public Tile getTileValue(int x, int y){
+    public ITile getTileValue(int x, int y){
         return boardMatrix[y][x];
     }
     public int getEmptyTiles() {
         return emptyTiles;
+    }
+    public String getType() {
+        return type.getClass().getSimpleName();
     }
 
     /**
@@ -241,6 +256,30 @@ public class Board {
     public void setWinCondition(int winCondition) {
         this.winCondition = winCondition;
     }
+    public void setHighestScoreTile(int highestScoreTile) {
+        this.highestScoreTile = highestScoreTile;
+    }
+    public void setEmptyTiles(int emptyTiles) {
+        this.emptyTiles = emptyTiles;
+    }
+
+    public String print() {
+        String temp = "";
+        for(int i = 0; i < size; i++){
+            for(int k = 0; k < size; k++){
+                if(boardMatrix[k][i] == null){
+                    temp += 0;
+                }
+                else{
+                    temp += boardMatrix[k][i].getValue();
+                }
+            }
+            temp += "\n";
+        }
+        return temp;
+    }
+
+
     @Override
     public String toString() {
         String temp = "";
@@ -256,5 +295,4 @@ public class Board {
         }
         return temp;
     }
-
 }
