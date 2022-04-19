@@ -2,10 +2,13 @@ package Twenty48;
 
 import java.io.File;
 
+import javafx.scene.Node;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
+
 public class PictureTile implements ITile {
 
     private int index;
-    private int value;
     private String[] styles = new String[]{
         "zero",
         "one",
@@ -22,35 +25,27 @@ public class PictureTile implements ITile {
     public PictureTile() {
         double random = Math.random();
         if(random < 0.9){
-            this.value = 2;
             this.index = 0;
         }
         else {
-            this.value = 4;
             this.index = 1;
         }
-       
     }
 
-    /**
-     * intialises a given tile, used for loading from save
-     * @param value value of the tile
-     * @param index index in the styles-array
-     */
-    public PictureTile(int value, int index){
-        setIndex(index);
-        this.value = value;
-    }
-
-    public String getStyle() {
+    public Node getNode(int prefSize) {
         String image = System.getProperty("user.dir") + "/src/main/resources/Pictures/" + styles[index] + ".jpg";
-        return "-fx-background-image: url('" + image + "');-fx-background-position: center center;-fx-background-repeat: stretch;";
+        ImageView img = new ImageView(new Image(new File(image).toURI().toString()));
+        img.setFitHeight(prefSize);
+        img.setFitWidth(prefSize);
+        img.prefHeight(prefSize);
+        img.prefWidth(prefSize);
+        return img;
     }
 
 
 
     public int getValue() {
-        return value;
+        return (int) Math.pow(2, index + 1);
     }
 
     public int getIndex() {
@@ -58,17 +53,18 @@ public class PictureTile implements ITile {
     }
 
     public void increaseValue() {
-        value *= 2;
+        if(index == styles.length - 1){
+            throw new IllegalArgumentException("Maximum value reached");
+        }
         index++;
-    }
-
-    public void setValue(int value) {
-        this.value = value;
     }
 
     public void setIndex(int index) {
         if(index < 0){
             throw new IllegalArgumentException("Index cannot be less than 0");
+        }
+        else if (index > styles.length - 1){
+            throw new IllegalArgumentException("Index cannot be more than" + (styles.length - 1));
         }
         this.index = index;
     }

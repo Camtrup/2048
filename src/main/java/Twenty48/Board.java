@@ -11,7 +11,7 @@ public class Board {
     private int emptyTiles;
     private int highestScoreTile = 0;
     private int score;
-    private int winCondition = 2048;
+    private int winCondition = 11; //The index of which the user wins
     private ITile type;
 
     /**
@@ -39,11 +39,13 @@ public class Board {
      * @param score current score
      * @param matrix the board
      */
-    public Board(int size, int score, ITile[][] matrix, ITile type){
+    public Board(int size, int score, ITile[][] matrix, ITile type, int highestScoreTile, int emptyTiles){
         this.type = type;
         this.size = size;
         this.boardMatrix = matrix;
         this.score = score;
+        this.highestScoreTile = highestScoreTile;
+        this.emptyTiles = emptyTiles;
     }
 
     /**
@@ -138,7 +140,7 @@ public class Board {
                         line[i] = null;
                         line[i+1].increaseValue();
                         emptyTiles++;
-                        highestScoreTile = (line[i+1].getValue() > highestScoreTile ? line[i+1].getValue() : highestScoreTile);
+                        highestScoreTile = (line[i+1].getIndex() > highestScoreTile ? line[i+1].getIndex() : highestScoreTile);
                         score += line[i+1].getValue();
                         moved.add("" + i);
                         break;
@@ -262,23 +264,6 @@ public class Board {
     public void setEmptyTiles(int emptyTiles) {
         this.emptyTiles = emptyTiles;
     }
-
-    public String print() {
-        String temp = "";
-        for(int i = 0; i < size; i++){
-            for(int k = 0; k < size; k++){
-                if(boardMatrix[k][i] == null){
-                    temp += 0;
-                }
-                else{
-                    temp += boardMatrix[k][i].getValue();
-                }
-            }
-            temp += "\n";
-        }
-        return temp;
-    }
-
 
     @Override
     public String toString() {

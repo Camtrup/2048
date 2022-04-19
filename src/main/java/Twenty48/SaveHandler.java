@@ -6,9 +6,17 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Writer;
+import java.util.HashMap;
+import java.util.Map;
 
 
 public class SaveHandler{
+
+    //Used to get the instance of tile, good for scalability
+    private Map<String, ITile> tileMap = new HashMap<String, ITile>(){{
+        this.put("NumberTile", new NumberTile());
+        this.put("PictureTile", new PictureTile());
+    }};
     
     /**
      * Saves a board with a given name
@@ -32,7 +40,7 @@ public class SaveHandler{
         s += b.getScore() + ";";
         for(ITile[] row : b.getBoardMatrix()){
             for(ITile tile : row){
-                s += (tile == null ? "0_0" : tile.getValue() + "_" + tile.getIndex()) + ":";
+                s += (tile == null ? "0" : tile.getIndex() + 1) + ":";
             }
             s += "-";
         }
@@ -55,31 +63,31 @@ public class SaveHandler{
                     int size = Integer.parseInt(temp[2]);
                     ITile[][] tempMatrix = new ITile[size][size];
                     
-                    String[] loadRows = temp[4].split("-");
-                    String[] tempRow;
-                    ITile type = null;
+                    ITile type = tileMap.get(temp[1]);
                     int highest = 0;
                     int emptyTiles = 0;
                     
+                    String[] loadRows = temp[4].split("-");
+                    String[] tempRow;
+
                     for(int i = 0; i < size; i++){
                         tempRow = loadRows[i].split(":");
                         for(int k = 0; k < size; k++){
-                            String[] valIndex = tempRow[k].split("_");
-                            int val = Integer.parseInt(valIndex[0]);
-                            highest = highest < val ? val : highest;
-                            type = temp[1].equals(NumberTile.class.getSimpleName()) ? new NumberTile() : new PictureTile();
-                            type.setValue(val);
-                            type.setIndex(Integer.parseInt(valIndex[1]));
-                            if(valIndex[0].equals("0")){
-                                type = null;    
+                            int tempIndex = Integer.parseInt(tempRow[k]);
+                            if(tempIndex == 0){    
+                                tempMatrix[i][k] = null;
                                 emptyTiles++;
                             }
-                            tempMatrix[i][k] = type;
+                            else{
+                                tempIndex--;
+                                type = (ITile) type.getClass().getConstructors()[0].newInstance();
+                                highest = highest < tempIndex ? tempIndex : highest;
+                                type.setIndex(tempIndex);
+                                tempMatrix[i][k] = type;
+                            }
                         }
                     }
-                    Board b = new Board(size, Integer.parseInt(temp[3]), tempMatrix, type);
-                    b.setHighestScoreTile(highest);
-                    b.setEmptyTiles(emptyTiles);
+                    Board b = new Board(size, Integer.parseInt(temp[3]), tempMatrix, type, highest, emptyTiles);
                     return b;
                 }catch(Exception e){
                     e.printStackTrace();

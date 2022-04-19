@@ -5,7 +5,7 @@ import java.util.Optional;
 
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
-import javafx.geometry.Pos;
+import javafx.scene.Node;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
@@ -217,7 +217,7 @@ public class Twenty48Controller {
             newGame();
         }
         else if (result.get() == buttonTypeOne){
-            board.setWinCondition(board.getWinCondition() * 2);
+            board.setWinCondition(board.getWinCondition() + 1);
         } else if (result.get() == buttonTypeTwo) {
             board.setWinCondition(0);
         } else if(result.get() == buttonTypeThree){
@@ -229,21 +229,15 @@ public class Twenty48Controller {
      * Draws the grid by crosschecking with the boardmatrix in Board.java
      */
     private void drawGrid(){
-        StackPane temp;
+        Node temp;
         boardPane.getChildren().clear();
         for (int y = 0; y < board.getSize(); y++){
             for(int x = 0; x < board.getSize(); x++){
                 ITile t = board.getTileValue(x, y);
-                Label l = new Label(t == null ? "" : "" + t.getValue());
-                temp = new StackPane(l);
-                StackPane.setAlignment(l, Pos.CENTER);
-                temp.setPrefHeight(tileSize);
-                temp.setPrefWidth(tileSize);
+                temp = t == null ? new StackPane() : t.getNode(tileSize);
                 temp.setTranslateX(x*tileSize);
                 temp.setTranslateY(y*tileSize);
-                temp.setStyle("-fx-border-color: grey; -fx-border-width: 2px;" + (t == null ? "-fx-background-color:f4f4f4;" : t.getStyle()));
                 boardPane.getChildren().add(temp);
-
             }
         }
     }

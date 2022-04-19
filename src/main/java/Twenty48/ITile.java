@@ -1,10 +1,11 @@
 package Twenty48;
 
+import javafx.scene.Node;
+
 public interface ITile {
-    public String getStyle();
     public int getValue();
     public int getIndex();
-    public void increaseValue();
-    public void setValue(int value);
     public void setIndex(int index);
+    public void increaseValue();
+    public Node getNode(int prefSize);
 }
