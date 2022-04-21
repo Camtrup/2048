@@ -25,6 +25,17 @@ public class Twenty48Controller {
     private int boardSize;
     private SaveHandler saveHandler = new SaveHandler();
 
+    
+    
+    @FXML
+    private Label scoreDisplay;
+    
+    @FXML
+    private Pane boardPane;
+    
+    @FXML
+    private Button saveButton;
+    
     /**
      * An object of the type KeyEvent that handle sthe userinput for controlling the game
      * Translates the key-symbol to a string
@@ -33,17 +44,12 @@ public class Twenty48Controller {
     EventHandler<KeyEvent> keyPress =  (e -> {
             boolean over = board.move(e.getCode().toString());
             drawGrid();
+            scoreDisplay.setText(board.getScore() + "");
             if(over){
                 drawGrid();
                 gameOver(board.isGameWon());
             }
         });
-    
-    @FXML
-    private Pane boardPane;
-
-    @FXML
-    private Button saveButton;
 
     /**
      * Produces the screen for either starting a new game with the respective sizes 3,4 or 5.
