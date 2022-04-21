@@ -36,8 +36,8 @@ public class SaveHandler{
         Writer output = new BufferedWriter(new FileWriter(getFile(test), true));
         String s = name + ";";
         s += b.getType() + ";";
-        s += b.getSize() + ";";
         s += b.getScore() + ";";
+
         for(ITile[] row : b.getBoardMatrix()){
             for(ITile tile : row){
                 s += (tile == null ? "0" : tile.getIndex() + 1) + ":";
@@ -60,34 +60,29 @@ public class SaveHandler{
                 String[] temp = value.split(";");
                 
                 try {
-                    int size = Integer.parseInt(temp[2]);
-                    ITile[][] tempMatrix = new ITile[size][size];
                     
                     ITile type = tileMap.get(temp[1]);
-                    int highest = 0;
-                    int emptyTiles = 0;
                     
-                    String[] loadRows = temp[4].split("-");
+                    String[] loadRows = temp[3].split("-");
                     String[] tempRow;
-
-                    for(int i = 0; i < size; i++){
+                    
+                    ITile[][] tempMatrix = new ITile[loadRows.length][loadRows.length];
+                    for(int i = 0; i < loadRows.length; i++){
                         tempRow = loadRows[i].split(":");
-                        for(int k = 0; k < size; k++){
+                        for(int k = 0; k < loadRows.length; k++){
                             int tempIndex = Integer.parseInt(tempRow[k]);
                             if(tempIndex == 0){    
                                 tempMatrix[i][k] = null;
-                                emptyTiles++;
                             }
                             else{
                                 tempIndex--;
                                 type = (ITile) type.getClass().getConstructors()[0].newInstance();
-                                highest = highest < tempIndex ? tempIndex : highest;
                                 type.setIndex(tempIndex);
                                 tempMatrix[i][k] = type;
                             }
                         }
                     }
-                    Board b = new Board(size, Integer.parseInt(temp[3]), tempMatrix, type, highest, emptyTiles);
+                    Board b = new Board(Integer.parseInt(temp[2]), tempMatrix);
                     return b;
                 }catch(Exception e){
                     e.printStackTrace();
@@ -117,16 +112,21 @@ public class SaveHandler{
     public void deleteSave(String name, boolean test) throws IOException{
         Writer output = new BufferedWriter(new FileWriter(getFile(test), true));
         String[] save = getAllSaves(test);
+        int count = 0;
         new FileWriter(getFile(test), false).close();
         for(int i = 0; i < save.length; i++){
             if(save[i].substring(0, save[i].indexOf(";")).equals(name)){
                 continue;
             }
             else{
+                count++;
                 output.append(save[i] + "\n");
             }
         }
         output.close();
+        if(count == save.length){
+            throw new IllegalArgumentException("Save was not found! Nothing was deleted");
+        }
     }
     /**
      * Delivers the path to the wanted file for reading or writing

@@ -137,6 +137,7 @@ public class Twenty48Controller {
             return;
         }
         String prompt = promptBox();
+        if (prompt == null) {return;}
         try{
             saveHandler.saveBoard(board, prompt, false);
         }catch(Exception e){
@@ -169,7 +170,9 @@ public class Twenty48Controller {
         if (result.isPresent()){
             return result.get();
         }
-        return "";
+        else{
+            return null;
+        }
     }
 
     /**
@@ -201,7 +204,7 @@ public class Twenty48Controller {
         alert.setHeaderText("Your score: " + board.getScore());
         alert.setContentText("Do you want to...");
 
-        ButtonType buttonTypeOne = new ButtonType("Continue to " + board.getWinCondition() * 2 + "?");
+        ButtonType buttonTypeOne = new ButtonType("Continue to " + (int) Math.pow(2, board.getWinCondition() + 1) + "?");
         ButtonType buttonTypeTwo = new ButtonType("Continue forever?!");
         ButtonType buttonTypeThree = new ButtonType("Start a new game?");
         if(!board.isGameWon()){

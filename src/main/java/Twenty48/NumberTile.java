@@ -45,12 +45,18 @@ public class NumberTile implements ITile {
      * Increases the index by 1
      */
     public void increaseValue(){
+        if(index == styles.length - 1){
+            throw new IllegalArgumentException("Maximum value reached");
+        }
         this.index++;
     }
 
     public void setIndex(int index) {
         if(index < 0){
             throw new IllegalArgumentException("Index cannot be less than 0");
+        }
+        if (index >= styles.length){
+            throw new IllegalArgumentException("Index cannot be more than" + (styles.length - 1));
         }
         this.index = index;
     }

@@ -11,13 +11,14 @@ public class Board {
     private int emptyTiles;
     private int highestScoreTile = 0;
     private int score;
-    private int winCondition = 11; //The index of which the user wins
+    private int winCondition = 10; //The index of which the user wins
     private ITile type;
 
     /**
      * Initializes the board by creating a matrix with size as dimensions
      * Also adds two tiles on the board to start the game
      * @param size of the board
+     * @param type of tyle, used to add new random tile
      */
     public Board(int size, ITile type){
         this.type = type;
@@ -34,22 +35,35 @@ public class Board {
         addRandomTile();
     }
     /**
-     * Constructor for loading of boards from file
-     * @param size size of the board
+     * Constructor for loading boards from file
      * @param score current score
      * @param matrix the board
      */
-    public Board(int size, int score, ITile[][] matrix, ITile type, int highestScoreTile, int emptyTiles){
-        this.type = type;
-        this.size = size;
-        this.boardMatrix = matrix;
+    public Board(int score, ITile[][] matrix){
+        this.size = matrix.length;
         this.score = score;
-        this.highestScoreTile = highestScoreTile;
-        this.emptyTiles = emptyTiles;
+        this.emptyTiles = 0;
+        for(ITile[] row : matrix){
+            if(row.length != size){
+                throw new IllegalArgumentException("Board and size does not match");
+            }
+            for(ITile tile : row){
+                if(tile == null){
+                    emptyTiles++;
+                }
+                else {
+                    type = tile;
+                    highestScoreTile = tile.getIndex() > highestScoreTile ? tile.getIndex() : highestScoreTile;
+                }
+            }
+        }
+        this.boardMatrix = matrix;
     }
 
     /**
      * Adds a random tile, used after each move by the player, to keep progresssing
+     * Iterates the board and adds empty coordinates to a list, 
+     * then picks one of these at random to add a new Tile
      */
     private void addRandomTile(){
         ArrayList<int[]> temp = new ArrayList<int[]>();
@@ -75,6 +89,11 @@ public class Board {
         }
     }
 
+    /**
+     * Is fired when the emptyTiles is 0, i.e the board is full of tiles.
+     * checks if any tiles can merge, if not the game is lost
+     * @return true if any tiles can merge, false if not
+     */
     private boolean canTilesMerge(){
         for (int x = 0; x < size; x++){
             for(int y = 0; y < size; y++){
@@ -193,7 +212,10 @@ public class Board {
     }
     /**
      * Handles the moves by the user
+     * Also handles random-tile-adding if the board has changed after a move
+     * Includes a cheatCode and lossCode for fun (and testing-purposes)
      * @param direction a character wich defines the direction of the "move"
+     * @return a boolean which notifies the controller if the game is over or not
      */
     public boolean move(String direction){
         String temp = this.toString();
@@ -210,20 +232,60 @@ public class Board {
             case "RIGHT", "D":
                 moveRight();
                 break;
+            case "P":
+                cheadCode();
+                break;
+            case "L":
+                lossCode();
+                break;
             default:
                 throw new IllegalArgumentException("Not a valid input");
         }
         if(!temp.equals(this.toString())){
             addRandomTile();
-            return isGameOver();
         }
-        return false;
+        return isGameOver();
     }
 
     /**
-     * 
-     * @return the boards matrix consisting of tiles
+     * Used to generate a winning board by placing two tiles of value 1024 in the top-right corner
      */
+    private void cheadCode(){
+        ITile[][] tempMatrix = new ITile[size][size];
+        ITile tempTile1 = new NumberTile();
+        ITile tempTile2 = new NumberTile();
+        tempTile2.setIndex(9);
+        tempTile1.setIndex(9);
+        tempMatrix[0][0] = tempTile1;
+        tempMatrix[0][1] = tempTile2;
+        boardMatrix = tempMatrix;
+    }
+
+    /**
+     * Used to generate a losing board
+     */
+    private void lossCode(){
+        for(int i = 0; i < size; i++){
+            for(int k = 0; k < size; k++){
+                try {
+                    ITile tempTile = (ITile) type.getClass().getConstructors()[0].newInstance();
+                    if(i % 2 == 0){
+                        tempTile.setIndex(k % 2 == 0 ? 2 : 3);
+                    }
+                    else{
+                        tempTile.setIndex(k % 2 == 0 ? 3 : 2);
+                    }
+                    boardMatrix[i][k] = tempTile;
+                } catch (InstantiationException | IllegalAccessException | IllegalArgumentException
+                        | InvocationTargetException | SecurityException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+        boardMatrix[0][0] = null;
+        emptyTiles = 1;
+    }
+
     public ITile[][] getBoardMatrix() {
         return boardMatrix;
     }
@@ -255,14 +317,16 @@ public class Board {
     public int getWinCondition() {
         return winCondition;
     }
+    /**
+     * Returns the highest indexed tile. 
+     * Is +1 because of 0-indexing
+     * @return highest index
+     */
+    public int getHighestScoreTile() {
+        return highestScoreTile + 1;
+    }
     public void setWinCondition(int winCondition) {
         this.winCondition = winCondition;
-    }
-    public void setHighestScoreTile(int highestScoreTile) {
-        this.highestScoreTile = highestScoreTile;
-    }
-    public void setEmptyTiles(int emptyTiles) {
-        this.emptyTiles = emptyTiles;
     }
 
     @Override
@@ -270,13 +334,14 @@ public class Board {
         String temp = "";
         for(int i = 0; i < size; i++){
             for(int k = 0; k < size; k++){
-                if(boardMatrix[k][i] == null){
-                    temp += 0;
+                if(boardMatrix[i][k] == null){
+                    temp += 0 + " ";
                 }
                 else{
-                    temp += boardMatrix[k][i].getValue();
+                    temp += boardMatrix[i][k].getValue() + " ";
                 }
             }
+            temp += "\n";
         }
         return temp;
     }

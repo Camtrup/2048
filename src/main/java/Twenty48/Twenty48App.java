@@ -8,7 +8,6 @@ import javafx.stage.Stage;
 import java.io.IOException;
 
 public class Twenty48App extends Application {
-
     public static void main(String[] args) {
         Twenty48App.launch(args);
     }

@@ -63,7 +63,7 @@ public class PictureTile implements ITile {
         if(index < 0){
             throw new IllegalArgumentException("Index cannot be less than 0");
         }
-        else if (index > styles.length - 1){
+        if (index >= styles.length){
             throw new IllegalArgumentException("Index cannot be more than" + (styles.length - 1));
         }
         this.index = index;
