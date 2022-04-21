@@ -1,10 +1,13 @@
 package Twenty48;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.Optional;
 
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
@@ -65,9 +68,11 @@ public class Twenty48Controller {
         
         
         Label numText = new Label("Choose size of Number-tiles!");
+        numText.setAlignment(Pos.CENTER);
         Button numSmall = new Button("Small 3x3");
         numSmall.setOnAction(e -> {
             startGame(new Board(3, new NumberTile()));
+            
         });
         Button numNormal = new Button("Normal 4x4");
         numNormal.setOnAction(e -> {
@@ -78,7 +83,9 @@ public class Twenty48Controller {
             startGame(new Board(5, new NumberTile()));
         });
         HBox numBox = new HBox(numSmall, numNormal, numBig);
+        numBox.setSpacing(5);
         VBox numContainer = new VBox(numText, numBox);
+        
 
         Label picText = new Label("Choose size of Picture-tiles!");
         Button picSmall = new Button("Small 3x3");
@@ -90,10 +97,11 @@ public class Twenty48Controller {
             startGame(new Board(4, new PictureTile()));
         });
         Button picBig = new Button("Big 5x5");
-        numBig.setOnAction(e -> {
+        picBig.setOnAction(e -> {
             startGame(new Board(5, new PictureTile()));
         });
         HBox picBox = new HBox(picSmall, picNormal, picBig);
+        picBox.setSpacing(5);
         VBox picContainer = new VBox(picText, picBox);
 
         Label loadGameLabel = new Label("Load Game");
@@ -103,7 +111,7 @@ public class Twenty48Controller {
             for(String line : saveHandler.getAllSaves(false)){
                 String[] temp = line.split(";");
                 Board tempBoard = saveHandler.loadBoard(temp[0], false);
-                Button b = new Button(temp[0] + " Size: " + temp[2] + "  Type: " + temp[1]);
+                Button b = new Button("Name: " + temp[0] + "  Type: " + temp[1]);
                 b.setOnAction(e -> {
                     startGame(tempBoard);
                 });
@@ -128,9 +136,11 @@ public class Twenty48Controller {
         VBox loadBox = new VBox(loadGameLabel, scroll);
 
         VBox allContent = new VBox(numContainer, picContainer, loadBox);
+        allContent.setSpacing(10);
+       // allContent.getStyleableParent().setAlignment(Pos.CENTER);
+        //VBox.setMargin(allContent,new Insets(5));
 
         boardPane.getChildren().add(allContent);
-        
     }
 
     /**

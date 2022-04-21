@@ -1,0 +1,8 @@
+.button {
+  -fx-background-color: #3d6581;
+  -fx-text-fill: #b6e0ea;
+}
+
+.HBox {
+  -fx-spacing: 5px;
+}
