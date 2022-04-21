@@ -8,17 +8,17 @@ import javafx.scene.layout.StackPane;
 public class NumberTile implements ITile {
     private int index;
     private String[] styles = new String[]{
-        "b0a7ab",
-        "eed2de",
-        "e0afc4",
-        "d38baa",
-        "c5678f",
-        "b74575",
-        "94375f",
-        "702a48",
-        "4d1d31",
-        "290f1a",
-        "00FF00"
+        "#b0a7ab",
+        "#998888",
+        "#eed2de",
+        "#e0afc4",
+        "#d99999",
+        "#d38baa",
+        "#c5678f",
+        "#f63472",
+        "#0AFF",
+        "#FAC00A",
+        "#00FF00"
     };
     /**
      * Initialises a given tile
@@ -65,7 +65,7 @@ public class NumberTile implements ITile {
         Label l = new Label(getValue() + "");
         StackPane.setAlignment(l, Pos.CENTER);
         StackPane s = new StackPane(l);
-        s.setStyle("-fx-border-color: grey; -fx-border-width: 2px;-fx-background-color:#" + styles[index] + ";");
+        s.setStyle("-fx-border-color: grey; -fx-border-width: 2px;-fx-background-color:" + styles[index] + ";");
         s.setPrefHeight(prefSize);
         s.setPrefWidth(prefSize);
         return s;
