@@ -243,7 +243,16 @@ public class Twenty48Controller {
         for (int y = 0; y < board.getSize(); y++){
             for(int x = 0; x < board.getSize(); x++){
                 ITile t = board.getTileValue(x, y);
-                temp = t == null ? new StackPane() : t.getNode(tileSize);
+                if(t == null){
+                    StackPane pane = new StackPane();
+                    pane.setPrefHeight(tileSize);
+                    pane.setPrefWidth(tileSize);
+                    temp = pane;
+                    temp.setStyle("-fx-border-color:grey; -fx-border-width:1px;");
+                }
+                else{
+                    temp = t.getNode(tileSize);
+                }
                 temp.setTranslateX(x*tileSize);
                 temp.setTranslateY(y*tileSize);
                 boardPane.getChildren().add(temp);
