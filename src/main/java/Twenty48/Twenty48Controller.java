@@ -1,12 +1,10 @@
 package Twenty48;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.Optional;
 
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
-import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.Alert;

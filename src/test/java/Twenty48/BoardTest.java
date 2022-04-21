@@ -25,7 +25,7 @@ public class BoardTest {
 
         assertThrows(IllegalArgumentException.class, () -> {{
             ITile[][] m = new ITile[5][4];
-            Board b = new Board(0,m);
+            new Board(0,m);
         }}, "Board and size does not match");
 
     }
