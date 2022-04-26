@@ -24,7 +24,7 @@ public class Twenty48Controller {
     private Board board;
     private int tileSize;
     private int boardSize;
-    private SaveHandler saveHandler = new SaveHandler();
+    private ISaveHandler saveHandler = new TXTSaveHandler();
 
     
     
@@ -38,7 +38,7 @@ public class Twenty48Controller {
     private Button saveButton;
     
     /**
-     * An object of the type KeyEvent that handle sthe userinput for controlling the game
+     * An object of the type KeyEvent that handles the userinput for controlling the game
      * Translates the key-symbol to a string
      * Also checks if the game is over
      */

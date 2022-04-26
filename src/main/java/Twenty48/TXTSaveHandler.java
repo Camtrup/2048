@@ -10,7 +10,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 
-public class SaveHandler{
+public class TXTSaveHandler implements ISaveHandler{
 
     //Used to get the instance of tile, good for scalability
     private Map<String, ITile> tileMap = new HashMap<String, ITile>(){{
@@ -24,7 +24,7 @@ public class SaveHandler{
      * @param b board
      * @param test decides if it saves in the test file or not
      */
-    protected void saveBoard(Board b, String name, boolean test) throws IOException{
+    public void saveBoard(Board b, String name, boolean test) throws IOException{
         for(String i : getAllSaves(test)){
             if(i.substring(0, name.length()).equals(name)){
                 throw new IllegalArgumentException("Name of save is already in use, try again!");
@@ -54,7 +54,7 @@ public class SaveHandler{
      * @param name name of save
      * @param test decides if one loads from the test-file or not
      */
-    protected Board loadBoard(String name, boolean test) throws IOException{
+    public Board loadBoard(String name, boolean test) throws IOException{
         for(String value : getAllSaves(test)){
             if(value.substring(0, name.length()).equals(name)){
                 String[] temp = value.split(";");
@@ -98,7 +98,7 @@ public class SaveHandler{
      * retrieves all saves in raw format
      * @param test decides if it retrieves from test-file or not
      */
-    protected String[] getAllSaves(boolean test) throws IOException{
+    public String[] getAllSaves(boolean test) throws IOException{
         try (BufferedReader reader = new BufferedReader(new FileReader(getFile(test)))) {
             return reader.lines().toArray(String[]::new);
         }
@@ -109,7 +109,7 @@ public class SaveHandler{
      * @param name given name in file
      * @param test decides if in test-file or not
      */
-    protected void deleteSave(String name, boolean test) throws IOException{
+    public void deleteSave(String name, boolean test) throws IOException{
         Writer output = new BufferedWriter(new FileWriter(getFile(test), true));
         String[] save = getAllSaves(test);
         int count = 0;

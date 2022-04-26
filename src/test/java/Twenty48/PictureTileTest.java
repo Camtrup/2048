@@ -16,6 +16,9 @@ public class PictureTileTest {
         tile = new PictureTile();
     }
 
+    /**
+     * Checks for invalid input in setters in tile
+     */
     @Test
     public void tileThrows(){
         assertThrows(IllegalArgumentException.class, () -> {{
@@ -33,6 +36,9 @@ public class PictureTileTest {
         }});
     }
 
+    /**
+     * Tests for valid state-changes of tiles
+     */
     @Test
     public void tileTest(){
         tile.setIndex(4);

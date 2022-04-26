@@ -21,8 +21,8 @@ public class Board {
      * @param type of tyle, used to add new random tile
      */
     protected Board(int size, ITile type){
-        if(size <= 0){
-            throw new IllegalArgumentException("Size must be more than 0");
+        if(size < 2){
+            throw new IllegalArgumentException("Size must be more than 1");
         }
         this.type = type;
         this.score = 0;
@@ -44,6 +44,9 @@ public class Board {
      */
     protected Board(int score, ITile[][] matrix){
         this.size = matrix.length;
+        if (size < 2){
+            throw new IllegalArgumentException("Size must be more than 1");
+        }
         this.score = score;
         this.emptyTiles = 0;
         for(ITile[] row : matrix){

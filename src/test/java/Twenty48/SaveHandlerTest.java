@@ -12,7 +12,7 @@ import org.junit.jupiter.api.Test;
 
 
 public class SaveHandlerTest {
-    private SaveHandler handler = new SaveHandler();
+    private TXTSaveHandler handler = new TXTSaveHandler();
     private Board board;
 
     @BeforeEach
@@ -26,7 +26,10 @@ public class SaveHandlerTest {
         handler.deleteSave("test", true);
     }
 
-    
+    /**
+     * Tests saveBoard for invalid input, such as similar names and blank name
+     * @throws IOException
+     */    
     @Test
     public void saveThrowsTest() throws IOException{
         assertThrows(IllegalArgumentException.class, () -> {
@@ -37,25 +40,34 @@ public class SaveHandlerTest {
             handler.saveBoard(board, "", true);
         }, "Name must contain characters");
     }
-
+    /**
+     * Tests if loading throws when the save doesnt exist
+     */
     @Test
     public void loadSaveThrows(){
         assertThrows(IllegalArgumentException.class, () -> {
             handler.loadBoard("notTest", true);
         }, "Could not find save!");
     }
-
+    /**
+     * Tests if deleting throws when save doesnt exist
+     */
     @Test
     public void deleteSaveThrows(){
         assertThrows(IllegalArgumentException.class, () -> {
             handler.deleteSave("thisIsNotaTest", true);
         }, "Save was not found! Nothing was deleted");
     }
-
+    /**
+     * Tests if loading a saved board returns in the same state
+     * @throws IOException
+     */
     @Test
     public void saveHandlerTest() throws IOException{
         handler.saveBoard(board, "test2", true);
         Board test = handler.loadBoard("test2", true);
+        assertEquals(board.getSize(), test.getSize());
+        assertEquals(board.getType(), board.getType());
         assertEquals(board.toString(), test.toString());
         handler.deleteSave("test2", true);
     }
