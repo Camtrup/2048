@@ -11,6 +11,7 @@ public class PictureTile implements ITile {
     private int index;
     private String[] styles = new String[]{
         "zero",
+        "eleven",
         "one",
         "two",
         "three",

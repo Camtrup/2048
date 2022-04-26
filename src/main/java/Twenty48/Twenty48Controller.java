@@ -250,7 +250,7 @@ public class Twenty48Controller {
         boardPane.getChildren().clear();
         for (int y = 0; y < board.getSize(); y++){
             for(int x = 0; x < board.getSize(); x++){
-                ITile t = board.getTileValue(x, y);
+                ITile t = board.getTile(x, y);
                 if(t == null){
                     StackPane pane = new StackPane();
                     pane.setPrefHeight(tileSize);

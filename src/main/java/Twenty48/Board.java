@@ -241,7 +241,7 @@ public class Board {
             default:
                 throw new IllegalArgumentException("Not a valid input");
         }
-        if(!temp.equals(this.toString())){
+        if(!this.toString().equals(temp)){
             addRandomTile();
         }
         return isGameOver();
@@ -251,14 +251,19 @@ public class Board {
      * Used to generate a winning board by placing two tiles of value 1024 in the top-right corner
      */
     private void cheadCode(){
-        ITile[][] tempMatrix = new ITile[size][size];
-        ITile tempTile1 = new NumberTile();
-        ITile tempTile2 = new NumberTile();
-        tempTile2.setIndex(9);
-        tempTile1.setIndex(9);
-        tempMatrix[0][0] = tempTile1;
-        tempMatrix[0][1] = tempTile2;
-        boardMatrix = tempMatrix;
+        try {
+            ITile[][] tempMatrix = new ITile[size][size];
+            ITile tempTile1 = (ITile) type.getClass().getConstructors()[0].newInstance();
+            ITile tempTile2 = (ITile) type.getClass().getConstructors()[0].newInstance();
+            tempTile2.setIndex(9);
+            tempTile1.setIndex(9);
+            tempMatrix[0][0] = tempTile1;
+            tempMatrix[0][1] = tempTile2;
+            boardMatrix = tempMatrix;
+        } catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException
+                | SecurityException e) {
+            e.printStackTrace();
+        }
     }
 
     /**
@@ -297,7 +302,7 @@ public class Board {
     public int getScore() {
         return score;
     }
-    public ITile getTileValue(int x, int y){
+    public ITile getTile(int x, int y){
         return boardMatrix[y][x];
     }
     public int getEmptyTiles() {
