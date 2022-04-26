@@ -20,7 +20,10 @@ public class Board {
      * @param size of the board
      * @param type of tyle, used to add new random tile
      */
-    public Board(int size, ITile type){
+    protected Board(int size, ITile type){
+        if(size <= 0){
+            throw new IllegalArgumentException("Size must be more than 0");
+        }
         this.type = type;
         this.score = 0;
         this.size = size;
@@ -39,7 +42,7 @@ public class Board {
      * @param score current score
      * @param matrix the board
      */
-    public Board(int score, ITile[][] matrix){
+    protected Board(int score, ITile[][] matrix){
         this.size = matrix.length;
         this.score = score;
         this.emptyTiles = 0;
@@ -95,6 +98,10 @@ public class Board {
      * @return true if any tiles can merge, false if not
      */
     private boolean canTilesMerge(){
+        if(emptyTiles > 0){
+            new IllegalArgumentException("Board is not full, tiles can merge");
+            return true;
+        }
         for (int x = 0; x < size; x++){
             for(int y = 0; y < size; y++){
                 if(x + 1 < size){
@@ -135,7 +142,7 @@ public class Board {
         Collections.reverse(Arrays.asList(line));
         return line;
     }
-    public boolean isGameOver(){
+    protected boolean isGameOver(){
         if(emptyTiles == 0){
             return !canTilesMerge();
         }
@@ -217,7 +224,7 @@ public class Board {
      * @param direction a character wich defines the direction of the "move"
      * @return a boolean which notifies the controller if the game is over or not
      */
-    public boolean move(String direction){
+    protected boolean move(String direction){
         String temp = this.toString();
         switch(direction){
             case "DOWN", "S":
@@ -239,7 +246,7 @@ public class Board {
                 lossCode();
                 break;
             default:
-                throw new IllegalArgumentException("Not a valid input");
+                break;
         }
         if(!this.toString().equals(temp)){
             addRandomTile();
@@ -291,8 +298,8 @@ public class Board {
         emptyTiles = 1;
     }
 
-    public ITile[][] getBoardMatrix() {
-        return boardMatrix;
+    protected ITile[][] getBoardMatrix() {
+        return boardMatrix.clone();
     }
 
     public int getSize() {
@@ -330,7 +337,10 @@ public class Board {
     public int getHighestScoreTile() {
         return highestScoreTile + 1;
     }
-    public void setWinCondition(int winCondition) {
+    protected void setWinCondition(int winCondition) {
+        if(winCondition < 0){
+            throw new IllegalArgumentException("Wincondition must be more than 0");
+        }
         this.winCondition = winCondition;
     }
 

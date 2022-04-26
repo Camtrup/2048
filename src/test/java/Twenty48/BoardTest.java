@@ -20,14 +20,20 @@ public class BoardTest {
     @Test
     public void boardThrows(){
         assertThrows(IllegalArgumentException.class, () -> {{
-            freshBoard.move("Q");
-        }}, "Not a valid input");
-
+            new Board(-1, new NumberTile());
+        }}, "Size must be more than 0");
+        
         assertThrows(IllegalArgumentException.class, () -> {{
             ITile[][] m = new ITile[5][4];
             new Board(0,m);
         }}, "Board and size does not match");
+    }
 
+    @Test
+    public void setWinConditionThrows(){
+        assertThrows(IllegalArgumentException.class, () -> {{
+            freshBoard.setWinCondition(-1);
+        }});
     }
 
     @Test
