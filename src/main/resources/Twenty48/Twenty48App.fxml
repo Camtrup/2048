@@ -17,7 +17,7 @@
       <Pane fx:id="boardPane" layoutX="66.0" layoutY="122.0" prefHeight="370.0" prefWidth="370.0" style="-fx-background-color: #63a2bb #63a2bb;"> 
            
       </Pane>
-      <Button layoutX="98.0" layoutY="518.0" mnemonicParsing="false" onAction="#newGame" prefHeight="43.0" prefWidth="127.0" style="-fx-background-color: #3d6581#3d6581;" text="New Game" textFill="#b6e0ea">
+      <Button fx:id="newGameButton" layoutX="98.0" layoutY="518.0" mnemonicParsing="false" onAction="#newGame" prefHeight="43.0" prefWidth="127.0" style="-fx-background-color: #3d6581#3d6581;" text="New Game" textFill="#b6e0ea">
          <font>
             <Font size="18.0" />
          </font>

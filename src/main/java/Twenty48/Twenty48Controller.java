@@ -36,6 +36,9 @@ public class Twenty48Controller {
     
     @FXML
     private Button saveButton;
+
+    @FXML
+    private Button newGameButton;
     
     /**
      * An object of the type KeyEvent that handles the userinput for controlling the game
@@ -61,6 +64,7 @@ public class Twenty48Controller {
         try{
             boardPane.getScene().removeEventFilter(KeyEvent.KEY_PRESSED, keyPress);
         } catch (Exception e){}
+        newGameButton.setVisible(false);
         saveButton.setVisible(false);
         boardPane.getChildren().clear();
         
@@ -195,6 +199,7 @@ public class Twenty48Controller {
      * @param b board to be used in the new game
      */
     private void startGame(Board b){
+        newGameButton.setVisible(true);
         saveButton.setVisible(true);
         board = b;
         boardSize = (int) boardPane.getPrefHeight();
